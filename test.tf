@@ -107,7 +107,7 @@ resource "azurerm_virtual_machine" "vm" {
     		disable_password_authentication = false
   }
 }
-date "azure_rm_public_ip" "pip" {
+data "azure_rm_public_ip" "pip" {
 	name                	= "${azurerm_public_ip.pip.name}"
 	resource_group_name 	= "${azurerm_virtual_machine.demoVM.resource_group_name}"
 }
