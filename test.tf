@@ -6,7 +6,7 @@ resource "azurerm_resource_group" "rg" {
 	name = "testRG"
 	location = "eastus"
 	tags = {
-		environment = "Terraform demo"
+		environment = "test"
 	}
 }
 resource "azurerm_virtual_network" "vnet" {
@@ -16,17 +16,7 @@ resource "azurerm_virtual_network" "vnet" {
 	resource_group_name	= "${azurerm_resource_group.rg.name}"
 
 	tags = {
-		environment = "Terraform demo"
-}
-}
-resource "azurerm_virtual_network" "vnet1" {
-        name                    = "demoVNET1"
-        address_space           = ["10.1.0.0/16"]
-        location                = "eastus"
-        resource_group_name     = "${azurerm_resource_group.rg.name}"
-
-        tags = {
-                environment = "Terraform demo"
+		environment = "test"
 }
 }
 resource "azurerm_subnet" "snet" {
@@ -35,28 +25,6 @@ resource "azurerm_subnet" "snet" {
 	virtual_network_name	= "${azurerm_virtual_network.vnet.name}"
 	address_prefix 		= "10.0.0.0/24"
 }
-resource "azurerm_subnet" "snet1" {
-        name                    = "demoSNET1"
-        resource_group_name     = "${azurerm_resource_group.rg.name}"
-        virtual_network_name    = "${azurerm_virtual_network.vnet1.name}"
-        address_prefix          = "10.1.0.0/24"
-}
-resource "azurerm_virtual_network_peering" "peering" {
-	name			= "peering-to-${azurerm_virtual_network.vnet1.name}"
-	resource_group_name	= "${azurerm_resource_group.rg.name}"
-	virtual_network_name	= "${azurerm_virtual_network.vnet.name}"
-	remote_virtual_network_id = "${azurerm_virtual_network.vnet1.id}"
-	allow_virtual_network_access = true
-}
-
-resource "azurerm_virtual_network_peering" "peering1" {
-        name                    = "peering-to-${azurerm_virtual_network.vnet.name}"
-        resource_group_name     = "${azurerm_resource_group.rg.name}"
-        virtual_network_name    = "${azurerm_virtual_network.vnet1.name}"
-        remote_virtual_network_id = "${azurerm_virtual_network.vnet.id}"
-        allow_virtual_network_access = true
-}
-
 resource "azurerm_public_ip" "pip" {
 	name			= "demoPIP"
 	location		= "eastus"
@@ -64,7 +32,7 @@ resource "azurerm_public_ip" "pip" {
 	allocation_method	= "Dynamic"
 
 	tags = {
-		environment = "Terraform demo"
+		environment = "test"
 }
 }
 resource "azurerm_network_security_group" "nsg" {
@@ -97,7 +65,7 @@ resource "azurerm_network_interface" "nic" {
 		public_ip_address_id = "${azurerm_public_ip.pip.id}"
 }
 	tags = {
-		environment = "Terraform demo"
+		environment = "test"
 }
 }
 resource "azurerm_storage_account" "storageacc" {
@@ -108,8 +76,7 @@ resource "azurerm_storage_account" "storageacc" {
 	account_tier 		= "Standard"
 
 	tags = {
-                environment = "Terraform demo"
-
+                environment = "test"
 }
 }
 resource "azurerm_virtual_machine" "vm" {
@@ -117,7 +84,7 @@ resource "azurerm_virtual_machine" "vm" {
 	location		= "eastus"
 	resource_group_name     = "${azurerm_resource_group.rg.name}"
 	network_interface_ids	= ["${azurerm_network_interface.nic.id}"]
-	vm_size			= "Standard_DS1_v2"
+	vm_size			= "Standard_B1ls"
 
 	storage_os_disk {
 		name		= "myDisk"
@@ -139,4 +106,11 @@ resource "azurerm_virtual_machine" "vm" {
 	os_profile_linux_config {
     		disable_password_authentication = false
   }
+}
+date "azure_rm_public_ip" "pip" {
+	name                	= "${azurerm_public_ip.pip.name}"
+	resource_group_name 	= "${azurerm_virtual_machine.demoVM.resource_group_name}"
+}
+output "public_ip_address" {
+	value = "${data.azurerm_public_ip.pip.ip_address}"
 }
